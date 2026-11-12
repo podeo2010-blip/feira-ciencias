@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Feira de Ciências · Avaliação</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3ff;--card:rgba(255,255,255,.72);--tx:#14202e;--mut:#5d6b7c;--pri:#5b4bff;--pt:#fff;--bd:rgba(120,130,170,.25);--ok:#1a7f4b;--bad:#c62828;--g1:#5b4bff;--g2:#00b4d8;--sh:0 1px 2px rgba(30,40,90,.06),0 8px 24px rgba(30,40,90,.10),0 24px 48px rgba(91,75,255,.10);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f1e;--card:rgba(28,36,64,.62);--tx:#e8eef5;--mut:#9aa8c0;--pri:#8b7dff;--pt:#0a0f1e;--bd:rgba(150,170,255,.18);--ok:#4cc38a;--bad:#ff7b7b;--g1:#7c6cff;--g2:#22d3ee;--sh:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.45),0 24px 60px rgba(124,108,255,.12)}}
+:root[data-theme="dark"]{--bg:#0a0f1e;--card:rgba(28,36,64,.62);--tx:#e8eef5;--mut:#9aa8c0;--pri:#8b7dff;--pt:#0a0f1e;--bd:rgba(150,170,255,.18);--ok:#4cc38a;--bad:#ff7b7b;--g1:#7c6cff;--g2:#22d3ee;--sh:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.45),0 24px 60px rgba(124,108,255,.12)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,rgba(91,75,255,.22),transparent 60%),radial-gradient(900px 500px at 100% 10%,rgba(0,180,216,.20),transparent 60%),var(--bg);background-attachment:fixed;color:var(--tx);font:16px/1.5 "Poppins",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body::before,body::after{content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(70px);opacity:.5;pointer-events:none}
+body::before{width:320px;height:320px;background:var(--g1);top:-80px;right:-60px;animation:fl 14s ease-in-out infinite}
+body::after{width:280px;height:280px;background:var(--g2);bottom:-80px;left:-60px;animation:fl 18s ease-in-out infinite reverse}
+@keyframes fl{50%{transform:translate(30px,40px) scale(1.15)}}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:6px 0;font-weight:700;background:linear-gradient(90deg,var(--g1),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+h2{font-size:1.05rem;margin:0 0 6px}
+.top{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px;padding:16px 18px;border-radius:22px;background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:var(--sh);animation:up .5s both}
+.top::after{content:"";position:absolute;right:-40px;top:-60px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.16)}
+.top::before{content:"";position:absolute;right:70px;bottom:-70px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.10)}
+.top>*{position:relative;z-index:1}
+.top h1{background:none;color:#fff;-webkit-text-fill-color:#fff;margin:0}
+.top .btn.s{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.4)}
+.top small{color:rgba(255,255,255,.9)}
+.tag{display:inline-block;font-size:.72rem;padding:2px 10px;border-radius:99px;background:rgba(255,255,255,.25);color:#fff;border:1px solid rgba(255,255,255,.4);margin-left:6px}
+nav{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+nav button{flex:1;min-width:90px;padding:11px;border:1px solid var(--bd);background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--tx);border-radius:99px;font:inherit;cursor:pointer;transition:transform .15s,box-shadow .2s}
+nav button:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+nav button.on{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;border-color:transparent;font-weight:600;box-shadow:0 6px 18px rgba(91,75,255,.35)}
+.card{position:relative;overflow:hidden;background:var(--card);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);border:1px solid var(--bd);border-radius:22px;padding:20px 18px 18px;margin-bottom:14px;box-shadow:var(--sh);animation:up .5s both}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--g1),var(--g2))}
+label{display:block;font-size:.85rem;color:var(--mut);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:12px;background:rgba(127,135,180,.10);color:var(--tx);font:inherit;transition:box-shadow .2s,border-color .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(124,108,255,.28)}
+.btn{width:100%;margin-top:14px;padding:13px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;font:inherit;font-weight:600;cursor:pointer;box-shadow:0 8px 20px rgba(91,75,255,.30);transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(91,75,255,.4)}
+.btn:active{transform:translateY(0)}
+.btn.s{background:transparent;color:var(--tx);border:1px solid var(--bd);width:auto;margin:0;padding:6px 12px;font-weight:400}
+.btn.d{color:var(--bad)}
+.link{background:none;border:0;color:var(--pri);cursor:pointer;font:inherit;padding:8px 0;width:100%}
+.crit{display:grid;grid-template-columns:1fr 2fr 2.4em;gap:8px;align-items:center;margin:8px 0;padding:8px 10px;border-radius:12px;background:rgba(127,135,180,.08)}
+.crit small{color:var(--mut)}
+.crit input{padding:0;accent-color:var(--pri)}
+.crit b{text-align:right}
+.tot{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:1.2rem;margin-top:14px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,rgba(91,75,255,.14),rgba(0,180,216,.14));border:1px solid var(--bd)}
+.row{display:flex;align-items:center;gap:10px;padding:12px 8px;border-top:1px solid var(--bd);border-radius:12px;transition:background .2s}
+.row:hover{background:rgba(124,108,255,.09)}
+.row:first-child{border-top:0}
+.i{flex:1;min-width:0}
+.i small{color:var(--mut);display:block}
+.n{width:1.8em;font-weight:700;color:var(--pri)}
+.sc{font-weight:700;font-size:1.05rem;padding:4px 12px;border-radius:99px;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff}
+.msg{margin-top:10px;min-height:1.4em;color:var(--ok)}
+.err{color:var(--bad)}
+.empty{color:var(--mut);text-align:center;padding:14px}
+.row select{width:auto}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{width:54px;height:54px;flex:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}
+.sub{display:block;opacity:.85;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase}
+.hero{text-align:center;padding:26px 8px 18px;animation:up .6s both}
+.hero svg{width:92px;height:92px;padding:10px;border-radius:28px;background:linear-gradient(135deg,var(--g1),var(--g2));filter:drop-shadow(0 12px 26px rgba(91,75,255,.4))}
+.hero h1{font-size:2rem;margin:10px 0 2px}
+.hero p{margin:0 0 12px;color:var(--mut)}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.chips span{font-size:.78rem;padding:5px 12px;border-radius:99px;background:var(--card);border:1px solid var(--bd);backdrop-filter:blur(10px)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.st{background:var(--card);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--bd);border-radius:18px;padding:14px;box-shadow:var(--sh);animation:up .5s both}
+.st i{font-style:normal;font-size:1.3rem}
+.st b{display:block;font-size:1.7rem;line-height:1.15;background:linear-gradient(90deg,var(--g1),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.st small{color:var(--mut);font-size:.76rem}
+.bar{height:6px;border-radius:9px;background:rgba(127,135,180,.25);margin-top:6px;overflow:hidden}
+.bar u{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--g1),var(--g2))}
+.av{width:42px;height:42px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--g1),var(--g2));box-shadow:0 0 0 3px rgba(255,255,255,.35),0 6px 14px rgba(91,75,255,.3)}
+.pill{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:99px;display:inline-block;margin-top:4px;width:fit-content}
+.pill.ok{background:rgba(26,127,75,.15);color:var(--ok)}
+.pill.wait{background:rgba(245,158,11,.18);color:#d97706}
+select+select{margin-top:8px}
+option{background:#fff;color:#14202e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) option{background:#18223a;color:#e8eef5}}
+.foot{text-align:center;color:var(--mut);font-size:.78rem;padding:18px 0 8px}
+</style>
+</head>
+<body>
+<main id="app"><div class="empty">Carregando…</div></main>
+<script>
+(function(){
+var ROLES={admin:"Organizador",jurado:"Avaliador",aluno:"Participante"};
+var CRIT=[["Criatividade e inovação",5],["Métodos científicos",2],["Domínio do tema",10],["Clareza da apresentação",10],["Organização e material",5],["Relevância e impacto",2],["Trabalho em equipe",4],["Postura e tempo",2]];
+var app=document.getElementById("app");
+var FIREBASE_CONFIG={apiKey:"COLE_AQUI",authDomain:"COLE_AQUI",projectId:"COLE_AQUI",storageBucket:"COLE_AQUI",messagingSenderId:"COLE_AQUI",appId:"COLE_AQUI"};
+var SEED=[{"id": "t1-iniciais", "name": "Anos Iniciais", "team": "Pequenos Cientistas", "sala": "1ª Sala", "prof": "", "slots": ["13h10 às 13h20", "13h25 às 13h35", "13h40 às 13h50", "13h55 às 14h05"]}, {"id": "t2-7ano", "name": "7º ano", "team": "Biomas: Fauna e Flora", "sala": "2ª Sala", "prof": "", "slots": ["16h00 às 16h10", "16h15 às 16h25", "16h30 às 16h40", "16h45 às 16h55"]}, {"id": "t3-6e8", "name": "6º e 8º anos", "team": "Sistema Solar e Rochas", "sala": "3ª Sala", "prof": "", "slots": ["15h45 às 15h55", "16h00 às 16h10", "16h15 às 16h25", "16h30 às 16h40"]}, {"id": "t4-9ano", "name": "9º ano", "team": "Práticas Experimentais", "sala": "4ª Sala", "prof": "", "slots": ["16h15 às 16h25", "16h30 às 16h40", "16h45 às 16h55", "17h00 às 17h10"]}, {"id": "t5-2emti", "name": "2º ano EMTI", "team": "Ciclo da Água – Mecânica Hidráulica – A água e suas especificidades – Projeto de Inovação e Saber", "sala": "5ª Sala", "prof": "", "slots": ["14h15 às 14h25", "14h30 às 14h40", "14h45 às 14h55", "15h00 às 15h10"]}, {"id": "t6-3emti", "name": "3º ano EMTI", "team": "As Plantas Medicinais e Mão na Massa: plantio de espécie na frente da escola e a casa sustentável", "sala": "6ª Sala", "prof": "", "slots": ["14h15 às 14h25", "14h30 às 14h40", "14h45 às 14h55", "15h00 às 15h10"]}, {"id": "t7-1emti", "name": "1º ano EMTI", "team": "Citologia e Cinemática", "sala": "7ª Sala", "prof": "Vitor Igor", "slots": ["13h10 às 13h20", "13h25 às 13h35", "13h40 às 13h50", "13h55 às 14h05"]}];
+
+var LOGO="<svg viewBox='0 0 64 64'><defs><linearGradient id='lg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#fff'/><stop offset='1' stop-color='#cfe9ff'/></linearGradient></defs><circle cx='32' cy='32' r='30' fill='rgba(255,255,255,.18)' stroke='rgba(255,255,255,.6)' stroke-width='2'/><path d='M26 14h12v3h-2v10l9 16a5 5 0 0 1-4.4 7.5H23.4A5 5 0 0 1 19 43l9-16V17h-2z' fill='url(#lg)'/><circle cx='30' cy='40' r='2.5' fill='#5b4bff'/><circle cx='36' cy='44' r='1.8' fill='#00b4d8'/></svg>";
+var uReady=0,db=null,U={},P=[],E=[],A=[],E_=[],A_=[],uSel="",pSel="",delArm="",delMsg="",flash={t:"",e:0},curW="",me=null,tab="projetos",ready=0,sel="",draft=null;
+
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+function field(lbl,type,ph,id){var w=document.createDocumentFragment();var l=el("label",null,lbl);var i=type==="area"?document.createElement("textarea"):document.createElement("input");if(type!=="area")i.type=type;i.placeholder=ph||"";i.id=id;if(type==="area")i.rows=3;l.htmlFor=id;w.append(l,i);return w;}
+function val(id){return document.getElementById(id).value.trim();}
+async function hash(u,p){var b=new TextEncoder().encode("feira:"+u+":"+p);var h=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(h)).map(function(x){return x.toString(16).padStart(2,"0");}).join("");}
+function total(sc){return sc.reduce(function(a,s){return a+s;},0);}
+function f2(n){return n.toFixed(2).replace(".",",");}
+function saveSess(u){try{localStorage.setItem("feira2-user",u||"");}catch(e){}}
+function loadSess(){try{return localStorage.getItem("feira2-user")||"";}catch(e){return "";}}
+
+function authView2(){app.innerHTML="";
+var hero=el("div","hero");hero.innerHTML=LOGO+"<h1>Feira de Ciências</h1><p>Plataforma oficial de avaliação de turmas e projetos</p>";
+var c=el("div","card");c.append(el("h2",null,"Entrar"));
+c.append(field("Seu nome completo","text","Ex.: Maria Silva","nome"));
+var b=el("button","btn","Entrar"),m=el("div","msg err"),hp=el("p",null,"Digite só o seu nome. Se for a primeira vez, sua conta é criada na hora.");hp.style.color="var(--mut)";hp.style.fontSize=".85rem";
+async function go(){m.textContent="";var nm=val("nome"),u=nm.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+if(u.length<2){m.textContent="Digite o seu nome.";return;}
+b.disabled=true;
+try{var d=await db.collection("users").doc(u).get(),data;
+if(d.exists){data=Object.assign({id:u},d.data());}
+else{var all=await db.collection("users").get(),role=all.empty?"admin":"aluno";data={id:u,name:nm,role:role,ts:Date.now()};await db.collection("users").doc(u).set({name:nm,role:role,ts:data.ts});}
+U[u]=data;me=u;saveSess(u);tab="projetos";render();}
+catch(e){m.textContent="Erro ao acessar o banco de dados. Tente de novo.";b.disabled=false;}}
+b.onclick=go;c.append(b,m,hp);app.append(hero,c);
+document.getElementById("nome").onkeydown=function(e){if(e.key==="Enter")go();};}
+function authView(){return authView2();
+  app.innerHTML="";
+  var reg=false;
+  var c=el("div","card");
+  function draw(){
+    c.innerHTML="";
+    c.append(el("h2",null,reg?"Criar conta":"Entrar"));
+    if(reg)c.append(field("Nome completo","text","Ex.: João Victor","nome"));
+    c.append(field("Usuário","text","sem espaços","user"),field("Senha","password","mín. 4 caracteres","pass"));
+    var b=el("button","btn",reg?"Cadastrar":"Entrar");
+    var m=el("div","msg err");
+    b.onclick=async function(){
+      m.textContent="";
+      var u=val("user").toLowerCase().replace(/[^a-z0-9_.-]/g,""),p=document.getElementById("pass").value;
+      if(!u||p.length<4){m.textContent="Informe usuário e uma senha de pelo menos 4 caracteres.";return;}
+      try{
+        var d=await db.collection("users").doc(u).get();
+        var h=await hash(u,p);
+        if(reg){
+          if(!val("nome")){m.textContent="Informe seu nome.";return;}
+          if(d.exists){m.textContent="Esse usuário já existe.";return;}
+          var all=await db.collection("users").get();
+          var role=all.empty?"admin":"aluno";
+          await db.collection("users").doc(u).set({name:val("nome"),pass:h,role:role,ts:Date.now()});
+        }else{
+          if(!d.exists||d.data().pass!==h){m.textContent="Usuário ou senha incorretos.";return;}
+        }
+        U[u]=reg?{id:u,name:val("nome"),pass:h,role:role,ts:Date.now()}:Object.assign({id:u},d.data());me=u;saveSess(u);tab="projetos";render();
+      }catch(e){m.textContent="Erro ao acessar o banco de dados. Tente de novo.";}
+    };
+    var t=el("button","link",reg?"Já tenho conta · Entrar":"Não tenho conta · Cadastrar");
+    t.onclick=function(){reg=!reg;draw();};
+    c.append(b,m,t);
+  }
+  draw();
+  var hero=el("div","hero");hero.innerHTML=LOGO+"<h1>Feira de Ciências</h1><p>Plataforma oficial de avaliação de turmas e projetos</p><div class='chips'><span>🔐 Acesso seguro</span><span>👥 Cargos</span><span>📝 Critérios com pontuação</span></div>";app.append(hero,c);
+  var n=el("p",null,"A primeira pessoa a se cadastrar vira Organizador e define os cargos dos demais.");n.style.color="var(--mut)";app.append(n);
+}
+
+function live(x){return P.some(function(p){return p.id===x.pid;});}
+function render(){E=E_.filter(live).filter(function(e){return e.v===2;});A=A_.filter(live);
+  if(!db){app.innerHTML="";app.append(el("div","card","Não foi possível conectar ao banco de dados. Confira a configuração do Firebase no arquivo index.html."));return;}
+  var cur=me&&U[me];
+  if(!cur){authView();return;}
+  var role=cur.role;
+  app.innerHTML="";
+  var top=el("div","top");
+  var l=el("div","brand");l.innerHTML=LOGO;var txt=el("div");txt.append(el("h1",null,"Feira de Ciências"),el("small","sub","Sistema oficial de avaliação"));l.append(txt);
+  var s=el("small",null,cur.name);var tg=el("span","tag",ROLES[role]);s.append(tg);txt.append(s);
+  var out=el("button","btn s","Sair");out.onclick=function(){me=null;saveSess("");render();};
+  top.append(l,out);app.append(top);
+  var tabs=[["projetos","🏫 Turmas"]];
+  if(role==="jurado"||role==="admin")tabs.push(["avaliar","📝 Avaliar"]);
+  if(role==="admin")tabs.push(["usuarios","👥 Usuários"]);
+  if(!tabs.some(function(t){return t[0]===tab;}))tab="projetos";
+  var nav=el("nav");
+  tabs.forEach(function(t){var b=el("button",t[0]===tab?"on":"",t[1]);b.onclick=function(){tab=t[0];uSel="";pSel="";flash={t:"",e:0};render();};nav.append(b);});
+  app.append(nav);app.append(stats());
+  ({projetos:vProj,avaliar:vAval,usuarios:vUsers})[tab](cur,role);var ft=el("div","foot");ft.textContent="© 2026 Feira de Ciências · Sistema de Avaliação";app.append(ft);
+}
+
+function av(n){return el("div","av",(n||"?").trim().split(/\s+/).slice(0,2).map(function(w){return w[0];}).join("").toUpperCase());}
+function stats(){var ju=Object.keys(U).filter(function(k){return U[k].role==="jurado";}).length,dn=A.filter(function(a){return E.some(function(e){return e.pid===a.pid&&e.judge===a.judge;});}).length,pc=A.length?Math.round(dn/A.length*100):0,d=el("div","stats");
+[["🏫",P.length,"Turmas"],["👥",ju,"Avaliadores"],["✅",E.length,"Avaliações"],["📈",pc+"%","Atribuições concluídas"]].forEach(function(s,k){var c=el("div","st");c.append(el("i",null,s[0]),el("b",null,String(s[1])),el("small",null,s[2]));if(k===3){var b=el("div","bar"),u=document.createElement("u");u.style.width=pc+"%";b.append(u);c.append(b);}d.append(c);});return d;}
+function vTurma(){var p=P.filter(function(q){return q.id===pSel;})[0];if(!p){pSel="";render();return;}
+var bk=el("button","btn s","‹ Voltar");bk.onclick=function(){pSel="";render();};app.append(bk);
+var c=el("div","card"),hd=el("div","row"),hi=el("div","i");hd.append(av(p.name));hi.append(el("b",null,p.name),el("small",null,(p.sala?p.sala+" · ":"")+(p.team||"")));hd.append(hi);c.append(hd);
+var ev=E.filter(function(e){return e.pid===p.id;}).sort(function(a,b){return (b.ts||0)-(a.ts||0);});
+c.append(el("label",null,"✓ Quem avaliou ("+ev.length+")"));
+if(!ev.length)c.append(el("div","empty","Ninguém avaliou ainda."));
+ev.forEach(function(e){var r=el("div","row"),i=el("div","i"),u=U[e.judge];r.append(av(u?u.name:e.judge));i.append(el("b",null,u?u.name:e.judge),el("small",null,"@"+e.judge+(e.ts?" · "+new Date(e.ts).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"")));i.append(el("small",null,CRIT.map(function(k,j){return k[0].split(" ")[0]+" "+e.scores[j]+"/"+k[1];}).join(" · ")));r.append(i,el("div","sc",f2(e.total)+"/40"));c.append(r);});
+var pe=A.filter(function(a){return a.pid===p.id&&!ev.some(function(e){return e.judge===a.judge;});});
+c.append(el("label",null,"⏳ Atribuídos que ainda não avaliaram ("+pe.length+")"));
+if(!pe.length)c.append(el("div","empty","Nenhum."));
+pe.forEach(function(a){var r=el("div","row"),i=el("div","i"),u=U[a.judge];r.append(av(u?u.name:a.judge));i.append(el("b",null,u?u.name:a.judge),el("small",null,a.slot?"🕒 "+a.slot:"Sem horário"));r.append(i,el("span","pill wait","Pendente"));c.append(r);});
+if(ev.length){var m=ev.reduce(function(s,e){return s+e.total;},0)/ev.length,t=el("div","tot");t.append(el("span",null,"Média"),el("span",null,f2(m)+" / 40"));c.append(t);}
+app.append(c);}
+function vProj(cur,role){if(pSel)return vTurma();
+  var c=el("div","card");c.append(el("h2",null,"Cadastrar turma"));
+  c.append(field("Turma","text","Ex.: 9º ano A","pn"),field("Projeto / tema","text","Ex.: Energia com limão","pt"),field("Descrição (opcional)","area","O que a turma apresenta?","pd"));
+  var b=el("button","btn","Adicionar turma"),m=el("div","msg err");
+  b.onclick=async function(){
+    if(!val("pn")){m.textContent="Dê um nome ao projeto.";return;}
+    try{await db.collection("projects").doc("p"+Date.now().toString(36)).set({name:val("pn"),team:val("pt"),desc:val("pd"),owner:me,ts:Date.now()});}catch(e){m.textContent="Não foi possível salvar.";}
+  };
+  c.append(b,m);app.append(c);
+  if(role!=="admin")c.remove();var L=el("div","card");L.append(el("h2",null,"Turmas ("+P.length+")"));if(delMsg)L.append(el("div","msg err",delMsg));if(role==="admin"&&!P.length){var sb=el("button","btn","Carregar as 7 turmas do cronograma");sb.onclick=async function(){sb.disabled=true;sb.textContent="Carregando…";try{for(var k=0;k<SEED.length;k++){var q=SEED[k];await db.collection("projects").doc(q.id).set({name:q.name,team:q.team,sala:q.sala,prof:q.prof,slots:q.slots,owner:me,ts:1793500000000+k});}}catch(e){delMsg="Erro: "+((e&&(e.code||e.message))||e);render();}};L.append(sb);}
+  if(!P.length)L.append(el("div","empty","Nenhum projeto ainda."));
+  P.forEach(function(p){
+    var r=el("div","row"),i=el("div","i");
+    i.style.cursor="pointer";i.onclick=function(){pSel=p.id;render();};r.append(av(p.name));i.append(el("b",null,p.name),el("small",null,(p.sala?p.sala+" · ":"")+(p.team||"Sem tema")));if(p.slots)i.append(el("small",null,"🕒 "+p.slots.join(" · ")));if(p.prof)i.append(el("small",null,"Prof. "+p.prof));
+    var ne=E.filter(function(e){return e.pid===p.id;}).length;i.append(el("span","pill "+(ne?"ok":"wait"),ne+" avalia"+(ne===1?"ção":"ções")+" · ver ›"));if(p.desc)i.append(el("small",null,p.desc));
+    r.append(i);
+    if(role==="admin"){
+      var d=el("button","btn s d",delArm===p.id?"Confirmar?":"Remover");
+      d.onclick=async function(){
+        if(delArm!==p.id){delArm=p.id;d.textContent="Confirmar?";setTimeout(function(){if(delArm===p.id){delArm="";render();}},6000);return;}delArm="";delMsg="";d.textContent="Removendo…";
+        try{var rf=db.collection("projects").doc(p.id);try{await rf.update({deleted:true,deletedBy:me});}catch(e1){var cp={};Object.keys(p).forEach(function(k){if(k!=="id")cp[k]=p[k];});cp.deleted=true;cp.deletedBy=me;await rf.set(cp);}
+          }catch(e){delMsg="Não foi possível remover \""+p.name+"\": "+((e&&(e.code||e.message))||e);render();}
+      };
+      r.append(d);
+    }
+    L.append(r);
+  });
+  app.append(L);
+}
+
+function win(slot){var m=/(\d{1,2})h(\d{2})[^\d]+(\d{1,2})h(\d{2})/.exec(slot||"");if(!m)return null;var s=+m[1]*60+ +m[2],e=+m[3]*60+ +m[4],n=new Date(),now=n.getHours()*60+n.getMinutes(),cl=e+20;function hm(x){return Math.floor(x/60)+"h"+("0"+x%60).slice(-2);}return{st:now<s?"antes":(now>cl?"depois":"ok"),open:hm(s),close:hm(cl)};}
+function vAval(cur){var adm=cur.role==="admin",AP=P.filter(function(p){return A.some(function(a){return a.pid===p.id&&a.judge===me;})&&!E.some(function(e){return e.id===p.id+"_"+me;});});
+  var c=el("div","card");c.append(el("h2",null,"Avaliar turma"));if(flash.t)c.append(el("div","msg"+(flash.e?" err":""),flash.t));
+  if(!AP.length){c.append(el("div","empty","Nenhuma avaliação pendente. Quando o organizador atribuir uma turma para você, ela aparece aqui."+(adm?" Você pode atribuir turmas a si mesmo na aba Usuários.":"")));app.append(c);return;}
+  if(!sel||!AP.some(function(p){return p.id===sel;}))sel=AP[0].id;
+  var lb=el("label",null,"Turma");var sl=document.createElement("select");
+  AP.forEach(function(p){var dn=E.some(function(e){return e.id===p.id+"_"+me;});var o=el("option",null,"⏳ "+p.name+(p.team?" — "+p.team:""));o.value=p.id;if(p.id===sel)o.selected=true;sl.append(o);});
+  sl.onchange=function(){sel=sl.value;draft=null;render();};
+  c.append(lb,sl);var sp=P.filter(function(q){return q.id===sel;})[0],asn=A.filter(function(a){return a.pid===sel&&a.judge===me;})[0];if(sp){var inf=el("div","pill wait",(sp.sala?sp.sala+" · ":"")+(asn&&asn.slot?"🕒 Vá às "+asn.slot:(sp.slots?"Horários: "+sp.slots.join(" · "):"")));inf.style.whiteSpace="normal";c.append(inf);}
+  var w=(!adm&&asn&&asn.slot)?win(asn.slot):null,lk=!!(w&&w.st!=="ok");curW=w?w.st:"";if(w){var wi=el("div","pill "+(lk?"wait":"ok"),lk?(w.st==="antes"?"⏳ Ainda não começou · libera às "+w.open:"⛔ Tempo encerrado · ficou liberado até "+w.close):"✓ Liberado agora · até "+w.close);wi.style.whiteSpace="normal";c.append(wi);}
+  var prev=E.filter(function(e){return e.id===sel+"_"+me;})[0];
+  if(!draft||draft.pid!==sel)draft={pid:sel,sc:prev?prev.scores.slice():CRIT.map(function(){return 0;})};
+  var tt=el("span",null,"");
+  CRIT.forEach(function(k,i){
+    var d=el("div","crit"),n=el("div");n.append(el("span",null,k[0]),el("small",null," (máx. "+k[1]+")"));
+    var r=document.createElement("input");r.type="range";r.min=0;r.max=CRIT[i][1];r.step=0.5;r.value=draft.sc[i];r.setAttribute("aria-label",k[0]);r.disabled=lk;
+    var b=el("b",null,String(draft.sc[i]));
+    r.oninput=function(){draft.sc[i]=+r.value;b.textContent=r.value;tt.textContent=f2(total(draft.sc))+" / 40";};
+    d.append(n,r,b);c.append(d);
+  });
+  tt.textContent=f2(total(draft.sc))+" / 40";
+  var t=el("div","tot");t.append(el("span",null,"Nota final"),tt);c.append(t);
+  var b=el("button","btn",prev?"Atualizar minha avaliação":"Salvar avaliação"),m=el("div","msg");b.disabled=lk;if(lk)b.style.opacity=".5";
+  b.onclick=async function(){
+    if(lk)return;try{await db.collection("evals").doc(sel+"_"+me).set({pid:sel,judge:me,scores:draft.sc,total:total(draft.sc),v:2,ts:Date.now()});flash={t:"✓ Avaliação salva!",e:0};draft=null;render();}
+    catch(e){flash={t:"Não foi possível salvar: "+((e&&(e.code||e.message))||e),e:1};render();}
+  };
+  c.append(b,m);app.append(c);
+}
+
+function vRank(){
+  var c=el("div","card");c.append(el("h2",null,"Ranking (nota máxima 10)"));
+  var st=P.map(function(p){var ev=E.filter(function(e){return e.pid===p.id;});
+    var avg=ev.length?ev.reduce(function(a,e){return a+e.total;},0)/ev.length:0;return{p:p,n:ev.length,avg:avg};
+  }).sort(function(a,b){return b.avg-a.avg;});
+  if(!st.length)c.append(el("div","empty","Nenhum projeto ainda."));
+  st.forEach(function(x,i){
+    var r=el("div","row");r.append(el("div","n",(i+1)+"º"));
+    var inf=el("div","i");inf.append(el("b",null,x.p.name),el("small",null,(x.p.team||"Sem equipe")+" · "+x.n+" avaliaç"+(x.n===1?"ão":"ões")));
+    r.append(inf,el("div","sc",x.n?f2(x.avg):"–"));c.append(r);
+  });
+  app.append(c);
+}
+
+function vUser(){var u=uSel,x=U[u];if(!x){uSel="";render();return;}
+var bk=el("button","btn s","‹ Voltar");bk.onclick=function(){uSel="";render();};app.append(bk);
+var ids={};A.concat(E).forEach(function(a){if(a.judge===u)ids[a.pid]=1;});
+var L=P.filter(function(p){return ids[p.id];}),ev=function(p){return E.filter(function(e){return e.id===p.id+"_"+u;})[0];};
+var c=el("div","card");var hd=el("div","row");hd.append(av(x.name));var hi=el("div","i");hi.append(el("b",null,x.name),el("small",null,"@"+u+" · "+ROLES[x.role]));hd.append(hi);c.append(hd);
+function sec(t,arr,pend){c.append(el("label",null,t+" ("+arr.length+")"));if(!arr.length)c.append(el("div","empty","Nenhuma."));arr.forEach(function(p){var r=el("div","row"),i=el("div","i"),e=ev(p);var as=A.filter(function(a){return a.pid===p.id&&a.judge===u;})[0];i.append(el("b",null,p.name),el("small",null,(p.sala||p.team||"")+(as&&as.slot?" · 🕒 "+as.slot:"")));r.append(i);if(e)r.append(el("div","sc",f2(e.total)));else r.append(el("span","pill wait","Pendente"));if(pend){var d=el("button","btn s d","Tirar");d.onclick=function(){db.collection("assign").doc(p.id+"_"+u).delete().catch(function(){});};r.append(d);}c.append(r);});}
+sec("✓ Já avaliou",L.filter(ev),0);sec("⏳ Falta avaliar",L.filter(function(p){return !ev(p);}),1);
+var rest=P.filter(function(p){return !ids[p.id];});
+c.append(el("label",null,"Atribuir turma para avaliar"));
+if(!rest.length)c.append(el("div","empty","Todas as turmas já estão com este usuário."));
+else{var s=document.createElement("select"),s2=document.createElement("select");rest.forEach(function(p){var o=el("option",null,p.name+(p.sala?" — "+p.sala:""));o.value=p.id;s.append(o);});
+function fs(){s2.innerHTML="";var p=P.filter(function(q){return q.id===s.value;})[0];((p&&p.slots)||[]).forEach(function(h){var o=el("option",null,"🕒 "+h);o.value=h;s2.append(o);});s2.hidden=!s2.options.length;}
+s.onchange=fs;fs();
+var b=el("button","btn","Atribuir");b.onclick=function(){db.collection("assign").doc(s.value+"_"+u).set({pid:s.value,judge:u,slot:s2.value||"",by:me,ts:Date.now()}).catch(function(){});};c.append(s,s2,b);}
+app.append(c);}
+function vUsers(){if(uSel)return vUser();
+  var c=el("div","card");c.append(el("h2",null,"Usuários e cargos"));
+  Object.keys(U).sort().forEach(function(u){
+    var r=el("div","row"),i=el("div","i"),ps={},my=[],dn=E.filter(function(e){return e.judge===u;}).length;A.concat(E).forEach(function(a){if(a.judge===u&&!ps[a.pid]){ps[a.pid]=1;my.push(a);}});r.append(av(U[u].name));i.append(el("b",null,U[u].name),el("small",null,"@"+u+" · "+dn+"/"+my.length+" turmas avaliadas · ver ›"));i.style.cursor="pointer";i.onclick=function(){uSel=u;render();};r.append(i);
+    if(u===me)r.append(el("span","tag","você"));
+    else{
+      var s=document.createElement("select");s.setAttribute("aria-label","Cargo de "+u);
+      Object.keys(ROLES).forEach(function(k){var o=el("option",null,ROLES[k]);o.value=k;if(k===U[u].role)o.selected=true;s.append(o);});
+      s.onchange=function(){db.collection("users").doc(u).update({role:s.value}).catch(function(){});};
+      r.append(s);
+    }
+    c.append(r);
+  });
+  app.append(c);
+}
+
+function soft(){var a=document.activeElement;if(document.getElementById("nome")&&!(me&&U[me]))return;if(a&&app.contains(a)&&(a.tagName==="INPUT"||a.tagName==="TEXTAREA")&&a.type!=="range")return;render();}
+function sub(name,cb){
+  db.collection(name).onSnapshot(function(s){
+    var o=[];s.docs.forEach(function(d){var x=Object.assign({},d.data());x.id=d.id;o.push(x);});
+    cb(o);ready++;soft();
+  },function(){ready++;soft();});
+}
+(async function(){
+  try{firebase.initializeApp(FIREBASE_CONFIG);db=firebase.firestore();}catch(e){db=null;}
+  if(!db){render();return;}
+  me=loadSess()||null;
+  sub("users",function(o){uReady=1;var keep=me&&U[me];U={};o.forEach(function(x){U[x.id]=x;});if(keep&&!U[me])U[me]=keep;});
+  sub("projects",function(o){P=o.filter(function(x){return !x.deleted;}).sort(function(a,b){return (a.ts||0)-(b.ts||0);});});
+  sub("evals",function(o){E_=o;});
+  sub("assign",function(o){A_=o;});
+  setInterval(function(){if(tab!=="avaliar"||!me||!U[me]||U[me].role==="admin")return;var a=A.filter(function(x){return x.pid===sel&&x.judge===me;})[0],w=a&&a.slot?win(a.slot):null;if((w?w.st:"")!==curW)soft();},15000);
+})();
+})();
+</script>
+</body>
+</html>
