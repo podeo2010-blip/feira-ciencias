@@ -92,14 +92,14 @@ option{background:#fff;color:#14202e}
 <main id="app"><div class="empty">Carregando…</div></main>
 <script>
 (function(){
-var ROLES={admin:"Organizador",jurado:"Avaliador",aluno:"Participante"};
+var ROLES={admin:"Dono",jurado:"Avaliador",aluno:"Participante"};
 var CRIT=[["Criatividade e inovação",5],["Métodos científicos",2],["Domínio do tema",10],["Clareza da apresentação",10],["Organização e material",5],["Relevância e impacto",2],["Trabalho em equipe",4],["Postura e tempo",2]];
 var app=document.getElementById("app");
 var FIREBASE_CONFIG={apiKey:"COLE_AQUI",authDomain:"COLE_AQUI",projectId:"COLE_AQUI",storageBucket:"COLE_AQUI",messagingSenderId:"COLE_AQUI",appId:"COLE_AQUI"};
 var SEED=[{"id": "t1-iniciais", "name": "Anos Iniciais", "team": "Pequenos Cientistas", "sala": "1ª Sala", "prof": "", "slots": ["13h10 às 13h20", "13h25 às 13h35", "13h40 às 13h50", "13h55 às 14h05"]}, {"id": "t2-7ano", "name": "7º ano", "team": "Biomas: Fauna e Flora", "sala": "2ª Sala", "prof": "", "slots": ["16h00 às 16h10", "16h15 às 16h25", "16h30 às 16h40", "16h45 às 16h55"]}, {"id": "t3-6e8", "name": "6º e 8º anos", "team": "Sistema Solar e Rochas", "sala": "3ª Sala", "prof": "", "slots": ["15h45 às 15h55", "16h00 às 16h10", "16h15 às 16h25", "16h30 às 16h40"]}, {"id": "t4-9ano", "name": "9º ano", "team": "Práticas Experimentais", "sala": "4ª Sala", "prof": "", "slots": ["16h15 às 16h25", "16h30 às 16h40", "16h45 às 16h55", "17h00 às 17h10"]}, {"id": "t5-2emti", "name": "2º ano EMTI", "team": "Ciclo da Água – Mecânica Hidráulica – A água e suas especificidades – Projeto de Inovação e Saber", "sala": "5ª Sala", "prof": "", "slots": ["14h15 às 14h25", "14h30 às 14h40", "14h45 às 14h55", "15h00 às 15h10"]}, {"id": "t6-3emti", "name": "3º ano EMTI", "team": "As Plantas Medicinais e Mão na Massa: plantio de espécie na frente da escola e a casa sustentável", "sala": "6ª Sala", "prof": "", "slots": ["14h15 às 14h25", "14h30 às 14h40", "14h45 às 14h55", "15h00 às 15h10"]}, {"id": "t7-1emti", "name": "1º ano EMTI", "team": "Citologia e Cinemática", "sala": "7ª Sala", "prof": "Vitor Igor", "slots": ["13h10 às 13h20", "13h25 às 13h35", "13h40 às 13h50", "13h55 às 14h05"]}];
 
 var LOGO="<svg viewBox='0 0 64 64'><defs><linearGradient id='lg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#fff'/><stop offset='1' stop-color='#cfe9ff'/></linearGradient></defs><circle cx='32' cy='32' r='30' fill='rgba(255,255,255,.18)' stroke='rgba(255,255,255,.6)' stroke-width='2'/><path d='M26 14h12v3h-2v10l9 16a5 5 0 0 1-4.4 7.5H23.4A5 5 0 0 1 19 43l9-16V17h-2z' fill='url(#lg)'/><circle cx='30' cy='40' r='2.5' fill='#5b4bff'/><circle cx='36' cy='44' r='1.8' fill='#00b4d8'/></svg>";
-var uReady=0,db=null,U={},P=[],E=[],A=[],E_=[],A_=[],uSel="",pSel="",delArm="",delMsg="",flash={t:"",e:0},curW="",me=null,tab="projetos",ready=0,sel="",draft=null;
+var uReady=0,db=null,U={},P=[],E=[],A=[],E_=[],A_=[],uSel="",pSel="",delArm="",delMsg="",dbErr="",viewAs="",flash={t:"",e:0},curW="",me=null,tab="projetos",ready=0,sel="",draft=null;
 
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
 function field(lbl,type,ph,id){var w=document.createDocumentFragment();var l=el("label",null,lbl);var i=type==="area"?document.createElement("textarea"):document.createElement("input");if(type!=="area")i.type=type;i.placeholder=ph||"";i.id=id;if(type==="area")i.rows=3;l.htmlFor=id;w.append(l,i);return w;}
@@ -120,10 +120,10 @@ if(u.length<2){m.textContent="Digite o seu nome.";return;}
 b.disabled=true;
 try{var d=await db.collection("users").doc(u).get(),data;
 if(d.exists){data=Object.assign({id:u},d.data());}
-else{var all=await db.collection("users").get(),role=all.empty?"admin":"aluno";data={id:u,name:nm,role:role,ts:Date.now()};await db.collection("users").doc(u).set({name:nm,role:role,ts:data.ts});}
-U[u]=data;me=u;saveSess(u);tab="projetos";render();}
-catch(e){m.textContent="Erro ao acessar o banco de dados. Tente de novo.";b.disabled=false;}}
-b.onclick=go;c.append(b,m,hp);app.append(hero,c);
+else{var role=u==="joao1208"?"admin":"jurado";data={id:u,name:nm,role:role,ts:Date.now()};await db.collection("users").doc(u).set({name:nm,role:role,ts:data.ts});}
+if(u==="joao1208"&&data.role!=="admin"){data.role="admin";await db.collection("users").doc(u).update({role:"admin"});}U[u]=data;me=u;saveSess(u);tab="projetos";render();}
+catch(e){m.textContent="Erro ao acessar o banco de dados ("+((e&&(e.code||e.message))||e)+"). Tente de novo.";b.disabled=false;}}
+b.onclick=go;if(dbErr)m.textContent="Problema com o banco: "+dbErr;c.append(b,m,hp);app.append(hero,c);
 document.getElementById("nome").onkeydown=function(e){if(e.key==="Enter")go();};}
 function authView(){return authView2();
   app.innerHTML="";
@@ -169,20 +169,22 @@ function render(){E=E_.filter(live).filter(function(e){return e.v===2;});A=A_.fi
   if(!db){app.innerHTML="";app.append(el("div","card","Não foi possível conectar ao banco de dados. Confira a configuração do Firebase no arquivo index.html."));return;}
   var cur=me&&U[me];
   if(!cur){authView();return;}
-  var role=cur.role;
+  var role=(cur.role==="admin"&&viewAs)?viewAs:cur.role;
   app.innerHTML="";
   var top=el("div","top");
   var l=el("div","brand");l.innerHTML=LOGO;var txt=el("div");txt.append(el("h1",null,"Feira de Ciências"),el("small","sub","Sistema oficial de avaliação"));l.append(txt);
   var s=el("small",null,cur.name);var tg=el("span","tag",ROLES[role]);s.append(tg);txt.append(s);
   var out=el("button","btn s","Sair");out.onclick=function(){me=null;saveSess("");render();};
-  top.append(l,out);app.append(top);
+  var vs=null;if(cur.role==="admin"){vs=document.createElement("select");vs.setAttribute("aria-label","Ver como");vs.style.width="auto";[["","\ud83d\udc51 Dono"],["jurado","\ud83d\udcdd Avaliador"],["aluno","\ud83c\udf93 Participante"]].forEach(function(o){var op=el("option",null,o[1]);op.value=o[0];if(o[0]===viewAs)op.selected=true;vs.append(op);});vs.onchange=function(){viewAs=vs.value;tab="projetos";uSel="";pSel="";render();};}
+var rt=el("div");rt.style.cssText="display:flex;flex-direction:column;gap:6px;align-items:flex-end";if(vs){rt.append(el("small",null,"Ver como:"),vs);}rt.append(out);top.append(l,rt);app.append(top);
+if(viewAs&&cur.role==="admin"){var nt=el("div","pill wait","\ud83d\udc41 Visualizando como "+ROLES[viewAs]+" \u00b7 seu acesso de Dono continua ativo");nt.style.cssText="white-space:normal;margin-bottom:10px";app.append(nt);}
   var tabs=[["projetos","🏫 Turmas"]];
   if(role==="jurado"||role==="admin")tabs.push(["avaliar","📝 Avaliar"]);
   if(role==="admin")tabs.push(["usuarios","👥 Usuários"]);
   if(!tabs.some(function(t){return t[0]===tab;}))tab="projetos";
   var nav=el("nav");
   tabs.forEach(function(t){var b=el("button",t[0]===tab?"on":"",t[1]);b.onclick=function(){tab=t[0];uSel="";pSel="";flash={t:"",e:0};render();};nav.append(b);});
-  app.append(nav);app.append(stats());
+  app.append(nav);if(role==="admin")app.append(stats());
   ({projetos:vProj,avaliar:vAval,usuarios:vUsers})[tab](cur,role);var ft=el("div","foot");ft.textContent="© 2026 Feira de Ciências · Sistema de Avaliação";app.append(ft);
 }
 
@@ -202,7 +204,7 @@ if(!pe.length)c.append(el("div","empty","Nenhum."));
 pe.forEach(function(a){var r=el("div","row"),i=el("div","i"),u=U[a.judge];r.append(av(u?u.name:a.judge));i.append(el("b",null,u?u.name:a.judge),el("small",null,a.slot?"🕒 "+a.slot:"Sem horário"));r.append(i,el("span","pill wait","Pendente"));c.append(r);});
 if(ev.length){var m=ev.reduce(function(s,e){return s+e.total;},0)/ev.length,t=el("div","tot");t.append(el("span",null,"Média"),el("span",null,f2(m)+" / 40"));c.append(t);}
 app.append(c);}
-function vProj(cur,role){if(pSel)return vTurma();
+function vProj(cur,role){if(pSel&&role==="admin")return vTurma();
   var c=el("div","card");c.append(el("h2",null,"Cadastrar turma"));
   c.append(field("Turma","text","Ex.: 9º ano A","pn"),field("Projeto / tema","text","Ex.: Energia com limão","pt"),field("Descrição (opcional)","area","O que a turma apresenta?","pd"));
   var b=el("button","btn","Adicionar turma"),m=el("div","msg err");
@@ -215,8 +217,8 @@ function vProj(cur,role){if(pSel)return vTurma();
   if(!P.length)L.append(el("div","empty","Nenhum projeto ainda."));
   P.forEach(function(p){
     var r=el("div","row"),i=el("div","i");
-    i.style.cursor="pointer";i.onclick=function(){pSel=p.id;render();};r.append(av(p.name));i.append(el("b",null,p.name),el("small",null,(p.sala?p.sala+" · ":"")+(p.team||"Sem tema")));if(p.slots)i.append(el("small",null,"🕒 "+p.slots.join(" · ")));if(p.prof)i.append(el("small",null,"Prof. "+p.prof));
-    var ne=E.filter(function(e){return e.pid===p.id;}).length;i.append(el("span","pill "+(ne?"ok":"wait"),ne+" avalia"+(ne===1?"ção":"ções")+" · ver ›"));if(p.desc)i.append(el("small",null,p.desc));
+    if(role==="admin"){i.style.cursor="pointer";i.onclick=function(){pSel=p.id;render();};}r.append(av(p.name));i.append(el("b",null,p.name),el("small",null,(p.sala?p.sala+" · ":"")+(p.team||"Sem tema")));if(p.slots)i.append(el("small",null,"🕒 "+p.slots.join(" · ")));if(p.prof)i.append(el("small",null,"Prof. "+p.prof));
+    var ne=E.filter(function(e){return e.pid===p.id;}).length;if(role==="admin")i.append(el("span","pill "+(ne?"ok":"wait"),ne+" avalia"+(ne===1?"ção":"ções")+" · ver ›"));if(p.desc)i.append(el("small",null,p.desc));
     r.append(i);
     if(role==="admin"){
       var d=el("button","btn s d",delArm===p.id?"Confirmar?":"Remover");
@@ -233,9 +235,9 @@ function vProj(cur,role){if(pSel)return vTurma();
 }
 
 function win(slot){var m=/(\d{1,2})h(\d{2})[^\d]+(\d{1,2})h(\d{2})/.exec(slot||"");if(!m)return null;var s=+m[1]*60+ +m[2],e=+m[3]*60+ +m[4],n=new Date(),now=n.getHours()*60+n.getMinutes(),cl=e+20;function hm(x){return Math.floor(x/60)+"h"+("0"+x%60).slice(-2);}return{st:now<s?"antes":(now>cl?"depois":"ok"),open:hm(s),close:hm(cl)};}
-function vAval(cur){var adm=cur.role==="admin",AP=P.filter(function(p){return A.some(function(a){return a.pid===p.id&&a.judge===me;})&&!E.some(function(e){return e.id===p.id+"_"+me;});});
+function vAval(cur,role){var adm=role==="admin",AP=P.filter(function(p){return A.some(function(a){return a.pid===p.id&&a.judge===me;})&&!E.some(function(e){return e.id===p.id+"_"+me;});});
   var c=el("div","card");c.append(el("h2",null,"Avaliar turma"));if(flash.t)c.append(el("div","msg"+(flash.e?" err":""),flash.t));
-  if(!AP.length){c.append(el("div","empty","Nenhuma avaliação pendente. Quando o organizador atribuir uma turma para você, ela aparece aqui."+(adm?" Você pode atribuir turmas a si mesmo na aba Usuários.":"")));app.append(c);return;}
+  if(!AP.length){c.append(el("div","empty","Nenhuma avaliação pendente. Quando o dono atribuir uma turma para você, ela aparece aqui."+(adm?" Você pode atribuir turmas a si mesmo na aba Usuários.":"")));app.append(c);return;}
   if(!sel||!AP.some(function(p){return p.id===sel;}))sel=AP[0].id;
   var lb=el("label",null,"Turma");var sl=document.createElement("select");
   AP.forEach(function(p){var dn=E.some(function(e){return e.id===p.id+"_"+me;});var o=el("option",null,"⏳ "+p.name+(p.team?" — "+p.team:""));o.value=p.id;if(p.id===sel)o.selected=true;sl.append(o);});
@@ -291,7 +293,7 @@ function fs(){s2.innerHTML="";var p=P.filter(function(q){return q.id===s.value;}
 s.onchange=fs;fs();
 var b=el("button","btn","Atribuir");b.onclick=function(){db.collection("assign").doc(s.value+"_"+u).set({pid:s.value,judge:u,slot:s2.value||"",by:me,ts:Date.now()}).catch(function(){});};c.append(s,s2,b);}
 app.append(c);}
-function vUsers(){if(uSel)return vUser();
+function vUsers(){if(uSel)return vUser();var gc=el("div","card");gc.append(el("h2",null,"Cargos e fun\u00e7\u00f5es"));[["\ud83d\udc51 Dono","V\u00ea tudo: usu\u00e1rios, quem avaliou e a nota de cada avaliador. Cadastra e remove turmas, atribui turmas e hor\u00e1rios e troca os cargos."],["\ud83d\udcdd Avaliador","V\u00ea s\u00f3 as turmas atribu\u00eddas a ele que ainda est\u00e3o pendentes e avalia dentro do hor\u00e1rio. N\u00e3o v\u00ea outros avaliadores nem o dono e n\u00e3o atribui turmas a si mesmo."],["\ud83c\udf93 Participante","S\u00f3 v\u00ea a lista de turmas. N\u00e3o avalia nem v\u00ea notas."]].forEach(function(x){var r=el("div","row"),i=el("div","i");i.append(el("b",null,x[0]),el("small",null,x[1]));r.append(i);gc.append(r);});app.append(gc);
   var c=el("div","card");c.append(el("h2",null,"Usuários e cargos"));
   Object.keys(U).sort().forEach(function(u){
     var r=el("div","row"),i=el("div","i"),ps={},my=[],dn=E.filter(function(e){return e.judge===u;}).length;A.concat(E).forEach(function(a){if(a.judge===u&&!ps[a.pid]){ps[a.pid]=1;my.push(a);}});r.append(av(U[u].name));i.append(el("b",null,U[u].name),el("small",null,"@"+u+" · "+dn+"/"+my.length+" turmas avaliadas · ver ›"));i.style.cursor="pointer";i.onclick=function(){uSel=u;render();};r.append(i);
@@ -312,16 +314,17 @@ function sub(name,cb){
   db.collection(name).onSnapshot(function(s){
     var o=[];s.docs.forEach(function(d){var x=Object.assign({},d.data());x.id=d.id;o.push(x);});
     cb(o);ready++;soft();
-  },function(){ready++;soft();});
+  },function(er){dbErr=(er&&(er.code||er.message))||"erro";ready++;soft();});
 }
 (async function(){
-  try{firebase.initializeApp(FIREBASE_CONFIG);db=firebase.firestore();}catch(e){db=null;}
+  try{if(FIREBASE_CONFIG.apiKey==="COLE_AQUI")throw 1;firebase.initializeApp(FIREBASE_CONFIG);db=firebase.firestore();}catch(e){db=null;}
   if(!db){render();return;}
   me=loadSess()||null;
   sub("users",function(o){uReady=1;var keep=me&&U[me];U={};o.forEach(function(x){U[x.id]=x;});if(keep&&!U[me])U[me]=keep;});
   sub("projects",function(o){P=o.filter(function(x){return !x.deleted;}).sort(function(a,b){return (a.ts||0)-(b.ts||0);});});
   sub("evals",function(o){E_=o;});
   sub("assign",function(o){A_=o;});
+  setTimeout(function(){if(!ready){dbErr="sem resposta do banco (confira a configuração do Firebase e se o Firestore foi criado)";render();}},5000);
   setInterval(function(){if(tab!=="avaliar"||!me||!U[me]||U[me].role==="admin")return;var a=A.filter(function(x){return x.pid===sel&&x.judge===me;})[0],w=a&&a.slot?win(a.slot):null;if((w?w.st:"")!==curW)soft();},15000);
 })();
 })();
